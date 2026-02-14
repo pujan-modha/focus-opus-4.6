@@ -1,0 +1,1726 @@
+/**
+ * focus thing — Stylesheet
+ *
+ * Design system: Catppuccin Mocha (dark) + Latte (light) themes,
+ * 14 accent colors, Instrument Serif + JetBrains Mono typography.
+ *
+ * Z-index layers:
+ *   1    — main content
+ *   50   — settings/focus/help toggles
+ *   80   — toast, hints, focus hint
+ *   99   — drawer backdrop
+ *   100  — drawer
+ *   150  — flash overlay
+ *   200  — noise grain
+ */
+
+/* ================================================================
+   CATPPUCCIN COLOR SYSTEM
+   ================================================================ */
+
+/* --- Mocha (Dark) --- */
+[data-theme="mocha"] {
+  --base:      #1e1e2e;
+  --mantle:    #181825;
+  --crust:     #11111b;
+  --surface0:  #313244;
+  --surface1:  #45475a;
+  --surface2:  #585b70;
+  --overlay0:  #6c7086;
+  --overlay1:  #7f849c;
+  --overlay2:  #9399b2;
+  --subtext0:  #a6adc8;
+  --subtext1:  #bac2de;
+  --text:      #cdd6f4;
+
+  --rosewater: #f5e0dc;
+  --flamingo:  #f2cdcd;
+  --pink:      #f5c2e7;
+  --mauve:     #cba6f7;
+  --red:       #f38ba8;
+  --maroon:    #eba0ac;
+  --peach:     #fab387;
+  --yellow:    #f9e2af;
+  --green:     #a6e3a1;
+  --teal:      #94e2d5;
+  --sky:       #89dceb;
+  --sapphire:  #74c7ec;
+  --blue:      #89b4fa;
+  --lavender:  #b4befe;
+}
+
+/* --- Latte (Light) --- */
+[data-theme="latte"] {
+  --base:      #eff1f5;
+  --mantle:    #e6e9ef;
+  --crust:     #dce0e8;
+  --surface0:  #ccd0da;
+  --surface1:  #bcc0cc;
+  --surface2:  #acb0be;
+  --overlay0:  #9ca0b0;
+  --overlay1:  #8c8fa1;
+  --overlay2:  #7c7f93;
+  --subtext0:  #6c6f85;
+  --subtext1:  #5c5f77;
+  --text:      #4c4f69;
+
+  --rosewater: #dc8a78;
+  --flamingo:  #dd7878;
+  --pink:      #ea76cb;
+  --mauve:     #8839ef;
+  --red:       #d20f39;
+  --maroon:    #e64553;
+  --peach:     #fe640b;
+  --yellow:    #df8e1d;
+  --green:     #40a02b;
+  --teal:      #179299;
+  --sky:       #04a5e5;
+  --sapphire:  #209fb5;
+  --blue:      #1e66f5;
+  --lavender:  #7287fd;
+}
+
+/* --- Accent mapping --- */
+[data-accent="rosewater"] { --accent: var(--rosewater); }
+[data-accent="flamingo"]  { --accent: var(--flamingo); }
+[data-accent="pink"]      { --accent: var(--pink); }
+[data-accent="mauve"]     { --accent: var(--mauve); }
+[data-accent="red"]       { --accent: var(--red); }
+[data-accent="maroon"]    { --accent: var(--maroon); }
+[data-accent="peach"]     { --accent: var(--peach); }
+[data-accent="yellow"]    { --accent: var(--yellow); }
+[data-accent="green"]     { --accent: var(--green); }
+[data-accent="teal"]      { --accent: var(--teal); }
+[data-accent="sky"]       { --accent: var(--sky); }
+[data-accent="sapphire"]  { --accent: var(--sapphire); }
+[data-accent="blue"]      { --accent: var(--blue); }
+[data-accent="lavender"]  { --accent: var(--lavender); }
+
+
+/* ================================================================
+   RESET & BASE
+   ================================================================ */
+
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  height: 100%;
+}
+
+body {
+  font-family: 'JetBrains Mono', monospace;
+  background-color: var(--base);
+  color: var(--text);
+  min-height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.5s ease, color 0.5s ease;
+  overflow: hidden;
+  position: relative;
+}
+
+/* --- Noise grain overlay --- */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.035;
+  z-index: 200;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+}
+
+[data-theme="latte"] body::after {
+  opacity: 0.025;
+}
+
+
+/* ================================================================
+   MAIN CONTENT
+   ================================================================ */
+
+main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  user-select: none;
+  animation: fadeInUp 0.8s ease both;
+  position: relative;
+  z-index: 1;
+  padding: 20px;
+}
+
+/* --- Phase label --- */
+#phase {
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  font-size: clamp(1rem, 2.5vw, 1.5rem);
+  color: var(--subtext0);
+  letter-spacing: 0.02em;
+  transition: color 0.5s ease;
+  min-height: 1.4em;
+  line-height: 1.4;
+}
+
+#phase.transitioning {
+  animation: phaseFade 0.4s ease;
+}
+
+/* --- Divider --- */
+.divider {
+  width: 40px;
+  height: 1px;
+  background-color: var(--surface2);
+  border: none;
+  margin: 12px 0 8px;
+  transition: background-color 0.5s ease, width 0.5s ease, opacity 0.5s ease;
+}
+
+/* --- Timer wrap (ring container) --- */
+#timer-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: clamp(260px, 40vw, 400px);
+  height: clamp(260px, 40vw, 400px);
+}
+
+#ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+#ring .ring-bg {
+  fill: none;
+  stroke: var(--surface0);
+  stroke-width: 1.5;
+  transition: stroke 0.5s ease;
+}
+
+#ring .ring-fill {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 3;
+  stroke-linecap: round;
+  transition: stroke 0.5s ease, stroke-dashoffset 0.3s linear;
+}
+
+/* Show ring when timer is active */
+main.work #ring,
+main.break #ring,
+main.major-break #ring,
+main.paused #ring {
+  opacity: 1;
+}
+
+/* Dimmed ring for breaks */
+main.break #ring .ring-fill,
+main.major-break #ring .ring-fill {
+  stroke: var(--surface2);
+}
+
+/* Paused ring opacity */
+main.paused #ring {
+  opacity: 0.4;
+}
+
+/* --- Timer --- */
+#timer {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(3rem, 8vw, 5.5rem);
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  color: var(--text);
+  transition: color 0.5s ease;
+  position: relative;
+  cursor: default;
+}
+
+/* Colon blink */
+#timer .colon {
+  display: inline-block;
+  animation: colonPulse 2s ease-in-out infinite;
+}
+
+/* --- Clock --- */
+#clock {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(0.65rem, 1.2vw, 0.8rem);
+  font-weight: 400;
+  color: var(--overlay1);
+  letter-spacing: 0.08em;
+  margin-top: 12px;
+  transition: color 0.5s ease;
+}
+
+/* --- Controls (pause / skip / reset) --- */
+#controls {
+  display: flex;
+  align-items: center;
+  margin-top: 16px;
+  min-height: 24px;
+}
+
+.ctrl-btn {
+  background: none;
+  border: none;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  font-weight: 400;
+  color: var(--overlay0);
+  cursor: pointer;
+  padding: 4px 0;
+  letter-spacing: 0.04em;
+  transition: color 0.2s ease;
+}
+
+.ctrl-btn:hover {
+  color: var(--text);
+}
+
+.ctrl-sep {
+  color: var(--surface2);
+  font-size: 0.65rem;
+  padding: 0 10px;
+  user-select: none;
+}
+
+/* --- Progress dots --- */
+#progress {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  min-height: 10px;
+}
+
+.progress-gap {
+  width: 8px;
+}
+
+.progress-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--surface1);
+  transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.progress-dot.done {
+  background-color: var(--accent);
+}
+
+.progress-dot.current {
+  background-color: var(--accent);
+  animation: dotPulse 2s ease-in-out infinite;
+}
+
+.progress-dot.current.paused {
+  animation: none;
+  opacity: 0.5;
+}
+
+/* --- Loop counter (replaces dots in loop mode) --- */
+.loop-counter {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--overlay1);
+  letter-spacing: 0.04em;
+  transition: color 0.5s ease;
+}
+
+
+/* ================================================================
+   STATE CLASSES (applied to <main>)
+   ================================================================ */
+
+/* --- Idle --- */
+main.idle #timer {
+  font-size: clamp(0.85rem, 2vw, 1.1rem);
+  font-weight: 400;
+  color: var(--overlay0);
+  letter-spacing: 0.04em;
+  cursor: pointer;
+}
+
+main.idle #timer:hover {
+  color: var(--subtext0);
+}
+
+main.idle .divider {
+  width: 32px;
+  opacity: 0.4;
+}
+
+main.idle #phase {
+  color: var(--subtext0);
+}
+
+/* --- Work --- */
+main.work .divider {
+  background-color: var(--accent);
+  width: 56px;
+  opacity: 0.5;
+}
+
+main.work #timer {
+  color: var(--accent);
+}
+
+/* --- Break --- */
+main.break #timer {
+  color: var(--text);
+}
+
+main.break .divider {
+  width: 48px;
+}
+
+/* --- Major Break --- */
+main.major-break #timer {
+  color: var(--subtext0);
+}
+
+main.major-break .divider {
+  width: 48px;
+  opacity: 0.4;
+}
+
+main.major-break #phase {
+  color: var(--overlay1);
+}
+
+/* --- Paused --- */
+main.paused #timer {
+  color: var(--overlay0);
+}
+
+main.paused .divider {
+  opacity: 0.3;
+}
+
+main.paused #timer .colon {
+  animation: none;
+  opacity: 0.4;
+}
+
+/* --- Done --- */
+main.done #timer {
+  color: var(--surface2);
+}
+
+main.done .divider {
+  width: 32px;
+  opacity: 0.3;
+}
+
+main.done #phase {
+  color: var(--green);
+}
+
+/* --- Waiting (between segments, auto-continue off) --- */
+main.waiting #timer {
+  font-size: clamp(0.85rem, 2vw, 1.1rem);
+  font-weight: 400;
+  color: var(--subtext0);
+  letter-spacing: 0.04em;
+  cursor: pointer;
+}
+
+main.waiting #timer:hover {
+  color: var(--text);
+}
+
+main.waiting .divider {
+  width: 40px;
+  opacity: 0.4;
+}
+
+main.waiting #phase {
+  color: var(--accent);
+}
+
+
+/* ================================================================
+   SETTINGS TOGGLE
+   ================================================================ */
+
+#settings-toggle {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 50;
+  background: none;
+  border: 1px solid transparent;
+  color: var(--overlay1);
+  cursor: pointer;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.3;
+  transition: opacity 0.3s ease, color 0.3s ease,
+              background-color 0.3s ease, border-color 0.3s ease,
+              transform 0.3s ease;
+  animation: fadeInUp 0.8s ease 0.3s both;
+}
+
+#settings-toggle:hover {
+  opacity: 1;
+  color: var(--text);
+  background-color: var(--surface0);
+  border-color: var(--surface1);
+}
+
+#settings-toggle svg {
+  width: 18px;
+  height: 18px;
+  transition: transform 0.5s ease;
+}
+
+#settings-toggle:hover svg {
+  transform: rotate(30deg);
+}
+
+#settings-toggle.active {
+  opacity: 1;
+  color: var(--text);
+  background-color: var(--surface0);
+  border-color: var(--surface1);
+}
+
+#settings-toggle.active svg {
+  transform: rotate(60deg);
+}
+
+
+/* ================================================================
+   FOCUS MODE TOGGLE
+   ================================================================ */
+
+#focus-toggle {
+  position: fixed;
+  top: 20px;
+  right: 64px;
+  z-index: 50;
+  background: none;
+  border: 1px solid transparent;
+  color: var(--overlay1);
+  cursor: pointer;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.3;
+  transition: opacity 0.3s ease, color 0.3s ease,
+              background-color 0.3s ease, border-color 0.3s ease;
+  animation: fadeInUp 0.8s ease 0.3s both;
+}
+
+#focus-toggle:hover {
+  opacity: 1;
+  color: var(--text);
+  background-color: var(--surface0);
+  border-color: var(--surface1);
+}
+
+#focus-toggle svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* ================================================================
+   HELP TOGGLE
+   ================================================================ */
+
+#help-toggle {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  z-index: 50;
+  background: none;
+  border: 1px solid transparent;
+  color: var(--overlay1);
+  cursor: pointer;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.3;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85rem;
+  font-weight: 400;
+  transition: opacity 0.3s ease, color 0.3s ease,
+              background-color 0.3s ease, border-color 0.3s ease;
+  animation: fadeInUp 0.8s ease 0.3s both;
+}
+
+#help-toggle:hover {
+  opacity: 1;
+  color: var(--text);
+  background-color: var(--surface0);
+  border-color: var(--surface1);
+}
+
+/* --- Focus mode active --- */
+body.focus-mode #settings-toggle,
+body.focus-mode #focus-toggle,
+body.focus-mode #help-toggle,
+body.focus-mode #progress,
+body.focus-mode #clock,
+body.focus-mode #controls {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+
+body.focus-mode #phase {
+  opacity: 0;
+}
+
+/* Focus hint */
+#focus-hint {
+  position: fixed;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  color: var(--overlay0);
+  opacity: 0;
+  visibility: hidden;
+  z-index: 80;
+  transition: opacity 0.4s ease, visibility 0.4s ease;
+  pointer-events: none;
+}
+
+#focus-hint.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+
+/* ================================================================
+   KEYBOARD HINTS PANEL
+   ================================================================ */
+
+#hints {
+  position: fixed;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%) translateY(10px);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  color: var(--subtext0);
+  background-color: var(--mantle);
+  border: 1px solid var(--surface0);
+  border-radius: 8px;
+  padding: 12px 20px;
+  z-index: 80;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s ease;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  max-width: 420px;
+  justify-content: center;
+}
+
+#hints.visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+.hint-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.hint-key {
+  display: inline-block;
+  padding: 1px 5px;
+  border: 1px solid var(--surface1);
+  border-radius: 3px;
+  font-size: 0.55rem;
+  color: var(--text);
+  background-color: var(--surface0);
+}
+
+.hint-label {
+  color: var(--overlay1);
+}
+
+
+/* ================================================================
+   SETTINGS DRAWER
+   ================================================================ */
+
+#drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 360px;
+  max-width: 100vw;
+  background-color: var(--mantle);
+  border-left: 1px solid var(--surface0);
+  z-index: 100;
+  transform: translateX(100%);
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+              background-color 0.5s ease, border-color 0.5s ease;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+#drawer.open {
+  transform: translateX(0);
+}
+
+#drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: var(--crust);
+  opacity: 0;
+  visibility: hidden;
+  z-index: 99;
+  transition: opacity 0.35s ease, visibility 0.35s ease;
+  cursor: pointer;
+}
+
+#drawer-backdrop.open {
+  opacity: 0.5;
+  visibility: visible;
+}
+
+.drawer-inner {
+  padding: 72px 28px 40px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+/* --- Drawer close button --- */
+#drawer-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: none;
+  border: 1px solid transparent;
+  color: var(--overlay1);
+  cursor: pointer;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.2rem;
+  line-height: 1;
+  opacity: 0.5;
+  transition: opacity 0.3s ease, color 0.3s ease,
+              background-color 0.3s ease, border-color 0.3s ease;
+}
+
+#drawer-close:hover {
+  opacity: 1;
+  color: var(--text);
+  background-color: var(--surface0);
+  border-color: var(--surface1);
+}
+
+/* --- Section --- */
+.drawer-section {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 24px 0;
+  border-bottom: 1px solid var(--surface0);
+}
+
+.drawer-section:first-child {
+  padding-top: 0;
+}
+
+.drawer-section:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.drawer-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.55rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--overlay0);
+  margin-bottom: 2px;
+  transition: color 0.5s ease;
+}
+
+/* --- Preset buttons --- */
+.preset-row {
+  display: flex;
+  gap: 10px;
+}
+
+.preset-btn {
+  flex: 1;
+  padding: 10px 14px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  color: var(--subtext0);
+  background: none;
+  border: 1px solid var(--surface1);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.preset-btn:hover {
+  color: var(--text);
+  border-color: var(--surface2);
+  background-color: var(--surface0);
+}
+
+.preset-btn.active {
+  color: var(--accent);
+  border-color: var(--accent);
+  background-color: color-mix(in srgb, var(--accent) 6%, transparent);
+}
+
+/* --- Custom preset button (with delete) --- */
+.custom-preset-wrap {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+
+.custom-preset-wrap .preset-btn {
+  width: 100%;
+  padding-right: 26px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.custom-preset-delete {
+  position: absolute;
+  top: 50%;
+  right: 6px;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--overlay0);
+  cursor: pointer;
+  padding: 0 2px;
+  line-height: 1;
+  opacity: 0;
+  transition: opacity 0.15s ease, color 0.15s ease;
+}
+
+.custom-preset-wrap:hover .custom-preset-delete {
+  opacity: 1;
+}
+
+.custom-preset-delete:hover {
+  color: var(--red);
+}
+
+/* --- Save preset UI --- */
+#save-preset-wrap {
+  margin-top: 2px;
+}
+
+.save-preset-input {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.save-preset-input input[type="text"] {
+  flex: 1;
+  min-width: 0;
+  padding: 6px 10px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  font-weight: 400;
+  color: var(--text);
+  background-color: var(--surface0);
+  border: none;
+  border-bottom: 1px solid var(--surface2);
+  border-radius: 6px 6px 0 0;
+  outline: none;
+  transition: border-color 0.2s ease, color 0.5s ease, background-color 0.5s ease;
+}
+
+.save-preset-input input[type="text"]:focus {
+  border-bottom-color: var(--accent);
+}
+
+.save-preset-input input[type="text"]::placeholder {
+  color: var(--overlay0);
+}
+
+.preset-name-confirm {
+  background: none;
+  border: 1px solid var(--surface1);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  color: var(--accent);
+  cursor: pointer;
+  padding: 4px 10px;
+  border-radius: 5px;
+  transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.preset-name-confirm:hover {
+  border-color: var(--accent);
+  background-color: color-mix(in srgb, var(--accent) 6%, transparent);
+}
+
+.preset-name-cancel {
+  background: none;
+  border: none;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.9rem;
+  color: var(--overlay0);
+  cursor: pointer;
+  padding: 2px 4px;
+  line-height: 1;
+  transition: color 0.2s ease;
+}
+
+.preset-name-cancel:hover {
+  color: var(--red);
+}
+
+#custom-presets-row:empty {
+  display: none;
+}
+
+/* --- Import/export row --- */
+.preset-io-row {
+  display: flex;
+  gap: 16px;
+  margin-top: 2px;
+}
+
+/* --- Field rows (work/break inputs) --- */
+.field-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 32px;
+}
+
+.field-row label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--subtext0);
+  transition: color 0.5s ease;
+}
+
+.field-row + .field-row {
+  margin-top: 2px;
+}
+
+.field-input {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.field-unit {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--overlay0);
+  transition: color 0.5s ease;
+}
+
+input[type="number"] {
+  width: 56px;
+  padding: 6px 10px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: var(--text);
+  background-color: var(--surface0);
+  border: none;
+  border-bottom: 1px solid var(--surface2);
+  border-radius: 6px 6px 0 0;
+  text-align: center;
+  outline: none;
+  transition: border-color 0.2s ease, color 0.5s ease,
+              background-color 0.5s ease;
+  -moz-appearance: textfield;
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"]:focus {
+  border-bottom-color: var(--accent);
+}
+
+/* --- Block rows --- */
+#blocks-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.block-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  background-color: var(--base);
+  border-radius: 8px;
+  animation: fadeInUp 0.25s ease both;
+  transition: background-color 0.5s ease;
+}
+
+.block-row input[type="number"] {
+  width: 46px;
+  padding: 5px 6px;
+  font-size: 0.75rem;
+  background-color: var(--surface0);
+  border-radius: 4px 4px 0 0;
+}
+
+.block-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--overlay0);
+  white-space: nowrap;
+  transition: color 0.5s ease;
+}
+
+.block-arrow {
+  font-size: 0.7rem;
+  color: var(--surface2);
+  transition: color 0.5s ease;
+}
+
+.block-remove {
+  background: none;
+  border: none;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.9rem;
+  color: var(--overlay0);
+  cursor: pointer;
+  padding: 2px 6px;
+  line-height: 1;
+  border-radius: 4px;
+  transition: color 0.2s ease, background-color 0.2s ease;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.block-remove:hover {
+  color: var(--red);
+  background-color: var(--surface0);
+}
+
+.block-end-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  color: var(--green);
+  letter-spacing: 0.04em;
+  transition: color 0.5s ease;
+}
+
+/* --- Text buttons (add block, theme switch) --- */
+.text-btn {
+  background: none;
+  border: none;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--overlay0);
+  cursor: pointer;
+  padding: 6px 0;
+  letter-spacing: 0.02em;
+  text-align: left;
+  transition: color 0.2s ease;
+}
+
+.text-btn:hover {
+  color: var(--text);
+}
+
+/* --- Accent picker (in drawer) --- */
+#accent-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.accent-dot {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.accent-dot:hover {
+  transform: scale(1.15);
+}
+
+.accent-dot.active {
+  border-color: var(--text);
+  box-shadow: 0 0 0 2px var(--mantle);
+}
+
+/* --- Theme switch button --- */
+#theme-switch {
+  margin-top: 4px;
+}
+
+/* --- Toggle switch --- */
+.toggle {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.toggle input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-track {
+  display: block;
+  width: 34px;
+  height: 18px;
+  border-radius: 9px;
+  background-color: var(--surface1);
+  transition: background-color 0.2s ease;
+  position: relative;
+}
+
+.toggle-track::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background-color: var(--overlay0);
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.toggle input:checked + .toggle-track {
+  background-color: color-mix(in srgb, var(--accent) 30%, var(--surface0));
+}
+
+.toggle input:checked + .toggle-track::after {
+  transform: translateX(16px);
+  background-color: var(--accent);
+}
+
+/* --- Range slider (volume) --- */
+.volume-control {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.volume-control input[type="number"] {
+  width: 46px;
+  padding: 4px 6px;
+  font-size: 0.7rem;
+  text-align: center;
+}
+
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 120px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--surface1);
+  outline: none;
+  transition: background 0.2s ease;
+  cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 20%, transparent);
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: none;
+  cursor: pointer;
+}
+
+/* --- Tone selector buttons --- */
+.tone-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tone-row-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--subtext0);
+  white-space: nowrap;
+  transition: color 0.5s ease;
+}
+
+.tone-selector {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.tone-btn {
+  padding: 4px 9px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  font-weight: 400;
+  color: var(--overlay0);
+  background: none;
+  border: 1px solid var(--surface1);
+  border-radius: 5px;
+  cursor: pointer;
+  letter-spacing: 0.02em;
+  transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.tone-btn:hover {
+  color: var(--text);
+  border-color: var(--surface2);
+  background-color: var(--surface0);
+}
+
+.tone-btn.active {
+  color: var(--accent);
+  border-color: var(--accent);
+  background-color: color-mix(in srgb, var(--accent) 6%, transparent);
+}
+
+
+/* ================================================================
+   ANIMATIONS
+   ================================================================ */
+
+/* --- Flash overlay --- */
+#flash-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: var(--accent);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 150;
+  transition: opacity 0.1s ease;
+}
+
+#flash-overlay.flash {
+  animation: flashPulse 0.4s ease-out forwards;
+}
+
+/* --- Toast --- */
+#toast {
+  position: fixed;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  font-weight: 400;
+  color: var(--text);
+  background-color: var(--surface0);
+  border: 1px solid var(--surface1);
+  border-radius: 8px;
+  padding: 8px 16px;
+  z-index: 80;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s ease;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  white-space: nowrap;
+}
+
+#toast.visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+#toast .toast-undo {
+  background: none;
+  border: none;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--accent);
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+#toast .toast-undo:hover {
+  color: var(--text);
+}
+
+@keyframes flashPulse {
+  0%   { opacity: 0.2; }
+  100% { opacity: 0; }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes phaseFade {
+  0%   { opacity: 0; transform: translateY(-4px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes colonPulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.25; }
+}
+
+@keyframes dotPulse {
+  0%, 100% { box-shadow: 0 0 0 0 transparent; }
+  50%      { box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 30%, transparent); }
+}
+
+
+/* ================================================================
+   RESPONSIVE
+   ================================================================ */
+
+/* --- Tablet / medium screens --- */
+@media (max-width: 768px) {
+  #drawer {
+    width: 340px;
+  }
+
+  .drawer-inner {
+    padding: 64px 24px 36px;
+  }
+
+  #hints {
+    max-width: 360px;
+    padding: 10px 16px;
+  }
+}
+
+/* --- Small screens / phones --- */
+@media (max-width: 480px) {
+  body {
+    align-items: flex-start;
+    padding-top: env(safe-area-inset-top, 0);
+  }
+
+  main {
+    padding: 16px;
+    min-height: 100dvh;
+    justify-content: center;
+  }
+
+  /* Timer sizing */
+  #timer-wrap {
+    width: clamp(200px, 72vw, 280px);
+    height: clamp(200px, 72vw, 280px);
+  }
+
+  #timer {
+    font-size: clamp(2.4rem, 12vw, 3.5rem);
+  }
+
+  main.idle #timer,
+  main.waiting #timer {
+    font-size: clamp(0.75rem, 3.2vw, 0.95rem);
+  }
+
+  #phase {
+    font-size: clamp(0.85rem, 3.5vw, 1.15rem);
+  }
+
+  #clock {
+    font-size: clamp(0.6rem, 2.5vw, 0.75rem);
+    margin-top: 8px;
+  }
+
+  /* Controls — larger tap targets */
+  #controls {
+    margin-top: 12px;
+    min-height: 40px;
+  }
+
+  .ctrl-btn {
+    font-size: 0.75rem;
+    padding: 10px 2px;
+    min-width: 44px;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ctrl-sep {
+    padding: 0 8px;
+  }
+
+  /* Progress dots */
+  #progress {
+    gap: 5px;
+    margin-top: 6px;
+  }
+
+  .progress-dot {
+    width: 5px;
+    height: 5px;
+  }
+
+  .progress-gap {
+    width: 6px;
+  }
+
+  /* Full-width drawer */
+  #drawer {
+    width: 100vw;
+  }
+
+  .drawer-inner {
+    padding: 60px 20px 32px;
+  }
+
+  #drawer-close {
+    top: 16px;
+    right: 16px;
+  }
+
+  .drawer-section {
+    gap: 12px;
+    padding: 20px 0;
+  }
+
+  /* Preset buttons — wrap and fill */
+  .preset-row {
+    flex-wrap: wrap;
+  }
+
+  .preset-btn {
+    padding: 10px 12px;
+    font-size: 0.7rem;
+    min-height: 40px;
+  }
+
+  .custom-preset-wrap {
+    min-width: calc(50% - 5px);
+  }
+
+  /* Block rows — compact layout */
+  .block-row {
+    gap: 8px;
+    padding: 8px;
+    flex-wrap: wrap;
+  }
+
+  .block-row input[type="number"] {
+    width: 42px;
+    padding: 5px 4px;
+    font-size: 0.7rem;
+  }
+
+  .block-label {
+    font-size: 0.6rem;
+  }
+
+  .block-end-label {
+    font-size: 0.55rem;
+  }
+
+  /* Volume control — stack range below */
+  .volume-control {
+    gap: 8px;
+  }
+
+  input[type="range"] {
+    width: 96px;
+  }
+
+  /* Tone grid — still 3 cols but tighter */
+  .tone-selector {
+    gap: 5px;
+  }
+
+  .tone-btn {
+    padding: 6px 6px;
+    font-size: 0.58rem;
+    min-height: 36px;
+  }
+
+  /* Accent picker — tighter on mobile */
+  #accent-picker {
+    gap: 6px;
+  }
+
+  .accent-dot {
+    width: 28px;
+    height: 28px;
+  }
+
+  /* Toggle switches — slightly larger tap area */
+  .toggle-track {
+    width: 38px;
+    height: 20px;
+    border-radius: 10px;
+  }
+
+  .toggle-track::after {
+    width: 16px;
+    height: 16px;
+  }
+
+  .toggle input:checked + .toggle-track::after {
+    transform: translateX(18px);
+  }
+
+  /* Field rows */
+  .field-row label {
+    font-size: 0.72rem;
+  }
+
+  input[type="number"] {
+    width: 52px;
+    padding: 6px 8px;
+    font-size: 0.75rem;
+  }
+
+  /* Settings / Focus / Help toggles — adjusted for mobile */
+  #settings-toggle,
+  #focus-toggle {
+    top: 16px;
+  }
+
+  #settings-toggle {
+    right: 16px;
+  }
+
+  #focus-toggle {
+    right: 56px;
+  }
+
+  #help-toggle {
+    bottom: 16px;
+    left: 16px;
+  }
+
+  /* Toast — edge-to-edge with margins (override desktop translateX centering) */
+  #toast {
+    left: 16px;
+    right: 16px;
+    bottom: 24px;
+    transform: translateX(0) translateY(20px);
+    max-width: none;
+    justify-content: center;
+    font-size: 0.68rem;
+  }
+
+  #toast.visible {
+    transform: translateX(0) translateY(0);
+  }
+
+  /* Hints panel */
+  #hints {
+    left: 16px;
+    right: 16px;
+    bottom: 24px;
+    transform: translateY(10px);
+    max-width: none;
+    padding: 10px 14px;
+    font-size: 0.55rem;
+    gap: 6px 14px;
+  }
+
+  #hints.visible {
+    transform: translateY(0);
+  }
+
+  /* Focus hint */
+  #focus-hint {
+    bottom: 24px;
+  }
+
+  /* Text buttons — larger tap targets */
+  .text-btn {
+    padding: 8px 0;
+    font-size: 0.7rem;
+    min-height: 36px;
+  }
+
+  /* Import/export row */
+  .preset-io-row {
+    gap: 12px;
+  }
+
+  /* Save preset input */
+  .save-preset-input input[type="text"] {
+    padding: 8px 10px;
+    font-size: 0.7rem;
+  }
+
+  .preset-name-confirm {
+    padding: 6px 12px;
+    min-height: 36px;
+  }
+
+  .preset-name-cancel {
+    padding: 4px 8px;
+    font-size: 1rem;
+    min-height: 36px;
+    display: flex;
+    align-items: center;
+  }
+}
+
+/* --- Very small screens (< 360px) --- */
+@media (max-width: 360px) {
+  #timer-wrap {
+    width: clamp(180px, 68vw, 240px);
+    height: clamp(180px, 68vw, 240px);
+  }
+
+  #timer {
+    font-size: clamp(2rem, 11vw, 3rem);
+  }
+
+  main.idle #timer,
+  main.waiting #timer {
+    font-size: clamp(0.68rem, 3vw, 0.85rem);
+  }
+
+  .drawer-inner {
+    padding: 56px 16px 28px;
+  }
+
+  .drawer-section {
+    gap: 10px;
+    padding: 16px 0;
+  }
+
+  .preset-btn {
+    padding: 8px 8px;
+    font-size: 0.65rem;
+  }
+
+  .block-row {
+    padding: 6px;
+  }
+
+  input[type="range"] {
+    width: 80px;
+  }
+
+  .accent-dot {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+/* --- Prevent body scroll when drawer is open (mobile) --- */
+body.drawer-open {
+  overflow: hidden;
+}
+
+/* --- Safe area padding for notched phones --- */
+@supports (padding: env(safe-area-inset-bottom)) {
+  #toast {
+    padding-bottom: calc(8px + env(safe-area-inset-bottom));
+  }
+
+  #hints {
+    padding-bottom: calc(12px + env(safe-area-inset-bottom));
+  }
+
+  #help-toggle {
+    bottom: calc(20px + env(safe-area-inset-bottom));
+  }
+
+  #focus-hint {
+    bottom: calc(32px + env(safe-area-inset-bottom));
+  }
+}
+
+
+/* ================================================================
+   REDUCED MOTION
+   ================================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  body::after {
+    display: none;
+  }
+}

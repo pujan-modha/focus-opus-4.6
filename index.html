@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="mocha" data-accent="peach">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="description" content="A minimal work/break timer with Catppuccin theming and customizable schedules.">
+<meta name="theme-color" content="#1e1e2e">
+<title>focus thing</title>
+
+<!-- Flash prevention — must run before CSS loads -->
+<script>
+(function() {
+  var t = localStorage.getItem('st-theme');
+  var a = localStorage.getItem('st-accent');
+  if (!t) t = window.matchMedia('(prefers-color-scheme: light)').matches ? 'latte' : 'mocha';
+  if (!a) a = 'peach';
+  document.documentElement.setAttribute('data-theme', t);
+  document.documentElement.setAttribute('data-accent', a);
+  // Sync theme-color meta with active theme
+  var meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.content = t === 'latte' ? '#eff1f5' : '#1e1e2e';
+})();
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@1&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<!-- Settings drawer -->
+<aside id="drawer" aria-label="Settings" aria-hidden="true">
+  <div class="drawer-inner">
+    <button id="drawer-close" aria-label="Close settings">&times;</button>
+
+    <section class="drawer-section">
+      <h3 class="drawer-label">Preset</h3>
+      <div class="preset-row" id="preset-row">
+        <button class="preset-btn" data-preset="pomodoro">Pomodoro</button>
+        <button class="preset-btn" data-preset="deepwork">Deep Work</button>
+      </div>
+      <div id="custom-presets-row" class="preset-row"></div>
+      <div id="save-preset-wrap">
+        <button id="save-preset-btn" class="text-btn">+ save as preset</button>
+        <div id="save-preset-input" class="save-preset-input" style="display:none;">
+          <input type="text" id="preset-name-input" placeholder="preset name" maxlength="20">
+          <button id="preset-name-confirm" class="preset-name-confirm">save</button>
+          <button id="preset-name-cancel" class="preset-name-cancel">&times;</button>
+        </div>
+      </div>
+      <div class="preset-io-row">
+        <button id="export-btn" class="text-btn">export</button>
+        <button id="import-btn" class="text-btn">import</button>
+        <input type="file" id="import-file-input" accept=".json" style="display:none;">
+      </div>
+    </section>
+
+    <section class="drawer-section">
+      <h3 class="drawer-label">Cycle</h3>
+      <div class="field-row">
+        <label for="cfg-work">Work</label>
+        <div class="field-input">
+          <input type="number" id="cfg-work" min="1" max="120" value="50">
+          <span class="field-unit">min</span>
+        </div>
+      </div>
+      <div class="field-row">
+        <label for="cfg-break">Break</label>
+        <div class="field-input">
+          <input type="number" id="cfg-break" min="1" max="60" value="10">
+          <span class="field-unit">min</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="drawer-section">
+      <h3 class="drawer-label">Blocks</h3>
+      <div id="blocks-list"></div>
+      <button id="add-block" class="text-btn">+ add block</button>
+    </section>
+
+    <section class="drawer-section">
+      <h3 class="drawer-label">Sound</h3>
+      <div class="field-row">
+        <label for="cfg-sound-toggle">Sound</label>
+        <label class="toggle">
+          <input type="checkbox" id="cfg-sound-toggle" checked>
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+      <div class="field-row">
+        <label for="cfg-volume">Volume</label>
+        <div class="volume-control">
+          <input type="range" id="cfg-volume" min="0" max="1" step="0.05" value="0.5">
+          <input type="number" id="cfg-volume-num" min="0" max="100" step="5" value="50">
+        </div>
+      </div>
+      <div class="tone-row">
+        <label class="tone-row-label">Work tone</label>
+        <div class="tone-selector" id="work-tone-selector"></div>
+      </div>
+      <div class="tone-row">
+        <label class="tone-row-label">Break tone</label>
+        <div class="tone-selector" id="break-tone-selector"></div>
+      </div>
+    </section>
+
+    <section class="drawer-section">
+      <h3 class="drawer-label">Behavior</h3>
+      <div class="field-row">
+        <label for="cfg-loop">Loop</label>
+        <label class="toggle">
+          <input type="checkbox" id="cfg-loop">
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+      <div class="field-row">
+        <label for="cfg-notifications">Notifications</label>
+        <label class="toggle">
+          <input type="checkbox" id="cfg-notifications">
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+      <div class="field-row">
+        <label for="cfg-auto-continue">Auto-continue</label>
+        <label class="toggle">
+          <input type="checkbox" id="cfg-auto-continue" checked>
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+    </section>
+
+    <section class="drawer-section">
+      <h3 class="drawer-label">Theme</h3>
+      <div id="accent-picker" role="radiogroup" aria-label="Accent color"></div>
+      <button id="theme-switch" class="text-btn"></button>
+    </section>
+
+  </div>
+</aside>
+
+<!-- Drawer backdrop -->
+<div id="drawer-backdrop" aria-hidden="true"></div>
+
+<!-- Settings toggle -->
+<button id="settings-toggle" aria-label="Settings">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="3"/>
+    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+  </svg>
+</button>
+
+<!-- Focus mode toggle -->
+<button id="focus-toggle" aria-label="Focus mode">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+  </svg>
+</button>
+
+<!-- Main content -->
+<main id="main">
+  <span id="phase" aria-live="polite"></span>
+  <hr class="divider" aria-hidden="true">
+  <div id="timer-wrap">
+    <svg id="ring" viewBox="0 0 200 200" aria-hidden="true">
+      <circle class="ring-bg" cx="100" cy="100" r="90" />
+      <circle class="ring-fill" cx="100" cy="100" r="90" />
+    </svg>
+    <span id="timer" role="timer" aria-live="off"></span>
+  </div>
+  <div id="progress" aria-label="Session progress"></div>
+  <span id="clock" aria-hidden="true"></span>
+  <div id="controls" role="group" aria-label="Timer controls"></div>
+</main>
+
+<!-- Flash overlay -->
+<div id="flash-overlay" aria-hidden="true"></div>
+
+<!-- Toast -->
+<div id="toast" role="status" aria-live="polite"></div>
+
+<!-- Keyboard shortcut hints -->
+<div id="hints" aria-hidden="true"></div>
+
+<!-- Help toggle -->
+<button id="help-toggle" aria-label="Keyboard shortcuts">?</button>
+
+<!-- Focus mode hint -->
+<div id="focus-hint" aria-hidden="true">esc to exit</div>
+
+<script src="script.js"></script>
+</body>
+</html>
