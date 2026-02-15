@@ -614,17 +614,10 @@ main.waiting #phase {
 body.focus-mode #settings-toggle,
 body.focus-mode #focus-toggle,
 body.focus-mode #help-toggle,
-body.focus-mode #github-link,
-body.focus-mode #progress,
-body.focus-mode #clock,
-body.focus-mode #controls {
+body.focus-mode #github-link {
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.4s ease;
-}
-
-body.focus-mode #phase {
-  opacity: 0;
 }
 
 /* Focus hint */
