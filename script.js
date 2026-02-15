@@ -1,5 +1,5 @@
 /**
- * focus thing — A minimal daily work/break timer.
+ * Focus — A minimal daily work/break timer.
  *
  * Architecture: Single IIFE, no frameworks, no build tools.
  * Three files: index.html, style.css, script.js.
@@ -58,7 +58,7 @@
   var TONE_NAMES = ['chime', 'ping', 'bell', 'pulse', 'beep', 'tap'];
 
   /** @constant {string} Application display name, used in titles and notifications. */
-  var APP_NAME = 'focus thing';
+  var APP_NAME = 'Focus';
 
   /** @constant {number} SVG ring circumference: 2 * PI * r, where r=90 in a 200x200 viewBox. */
   var RING_CIRCUMFERENCE = 2 * Math.PI * 90;
