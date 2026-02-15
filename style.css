@@ -610,15 +610,6 @@ main.waiting #phase {
   border-color: var(--surface1);
 }
 
-/* --- Focus mode active --- */
-body.focus-mode #settings-toggle,
-body.focus-mode #focus-toggle,
-body.focus-mode #help-toggle,
-body.focus-mode #github-link {
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.4s ease;
-}
 
 /* Focus hint */
 #focus-hint {
@@ -739,7 +730,7 @@ body.focus-mode #github-link {
 }
 
 .drawer-inner {
-  padding: 72px 28px 40px;
+  padding: 28px 28px 40px;
   display: flex;
   flex-direction: column;
   position: relative;
@@ -747,9 +738,10 @@ body.focus-mode #github-link {
 
 /* --- Drawer close button --- */
 #drawer-close {
-  position: absolute;
+  position: fixed;
   top: 20px;
-  right: 20px;
+  left: 360px;
+  z-index: 100;
   background: none;
   border: 1px solid transparent;
   color: var(--overlay1);
@@ -763,9 +755,15 @@ body.focus-mode #github-link {
   font-family: 'JetBrains Mono', monospace;
   font-size: 1.2rem;
   line-height: 1;
-  opacity: 0.5;
+  opacity: 0;
+  pointer-events: none;
   transition: opacity 0.3s ease, color 0.3s ease,
               background-color 0.3s ease, border-color 0.3s ease;
+}
+
+body.drawer-open #drawer-close {
+  opacity: 0.5;
+  pointer-events: auto;
 }
 
 #drawer-close:hover {
@@ -950,10 +948,14 @@ body.focus-mode #github-link {
 }
 
 /* --- Import/export row --- */
-.preset-io-row {
+.preset-actions-row {
   display: flex;
+  align-items: center;
   gap: 16px;
-  margin-top: 2px;
+}
+
+.preset-actions-row #export-btn {
+  margin-left: auto;
 }
 
 /* --- Field rows (work/break inputs) --- */
@@ -1383,7 +1385,11 @@ input[type="range"]::-moz-range-thumb {
   }
 
   .drawer-inner {
-    padding: 64px 24px 36px;
+    padding: 24px 24px 36px;
+  }
+
+  #drawer-close {
+    left: 340px;
   }
 
   #hints {
@@ -1470,11 +1476,12 @@ input[type="range"]::-moz-range-thumb {
   }
 
   .drawer-inner {
-    padding: 60px 20px 32px;
+    padding: 20px 20px 32px;
   }
 
   #drawer-close {
     top: 16px;
+    left: auto;
     right: 16px;
   }
 
@@ -1643,8 +1650,8 @@ input[type="range"]::-moz-range-thumb {
     min-height: 36px;
   }
 
-  /* Import/export row */
-  .preset-io-row {
+  /* Preset actions row */
+  .preset-actions-row {
     gap: 12px;
   }
 
@@ -1685,7 +1692,7 @@ input[type="range"]::-moz-range-thumb {
   }
 
   .drawer-inner {
-    padding: 56px 16px 28px;
+    padding: 16px 16px 28px;
   }
 
   .drawer-section {

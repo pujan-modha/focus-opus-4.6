@@ -33,7 +33,6 @@
 <!-- Settings drawer -->
 <aside id="drawer" aria-label="Settings" aria-hidden="true">
   <div class="drawer-inner">
-    <button id="drawer-close" aria-label="Close settings">&times;</button>
 
     <section class="drawer-section">
       <h3 class="drawer-label">Preset</h3>
@@ -43,17 +42,17 @@
       </div>
       <div id="custom-presets-row" class="preset-row"></div>
       <div id="save-preset-wrap">
-        <button id="save-preset-btn" class="text-btn">+ save as preset</button>
+        <div class="preset-actions-row">
+          <button id="save-preset-btn" class="text-btn">+ save as preset</button>
+          <button id="export-btn" class="text-btn">export</button>
+          <button id="import-btn" class="text-btn">import</button>
+          <input type="file" id="import-file-input" accept=".json" style="display:none;">
+        </div>
         <div id="save-preset-input" class="save-preset-input" style="display:none;">
           <input type="text" id="preset-name-input" placeholder="preset name" maxlength="20">
           <button id="preset-name-confirm" class="preset-name-confirm">save</button>
           <button id="preset-name-cancel" class="preset-name-cancel">&times;</button>
         </div>
-      </div>
-      <div class="preset-io-row">
-        <button id="export-btn" class="text-btn">export</button>
-        <button id="import-btn" class="text-btn">import</button>
-        <input type="file" id="import-file-input" accept=".json" style="display:none;">
       </div>
     </section>
 
@@ -62,14 +61,14 @@
       <div class="field-row">
         <label for="cfg-work">Work</label>
         <div class="field-input">
-          <input type="number" id="cfg-work" min="1" max="120" value="50">
+          <input type="number" id="cfg-work" min="1" value="50">
           <span class="field-unit">min</span>
         </div>
       </div>
       <div class="field-row">
         <label for="cfg-break">Break</label>
         <div class="field-input">
-          <input type="number" id="cfg-break" min="1" max="60" value="10">
+          <input type="number" id="cfg-break" min="1" value="10">
           <span class="field-unit">min</span>
         </div>
       </div>
@@ -140,6 +139,7 @@
 
   </div>
 </aside>
+<button id="drawer-close" aria-label="Close settings">&times;</button>
 
 <!-- Drawer backdrop -->
 <div id="drawer-backdrop" aria-hidden="true"></div>

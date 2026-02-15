@@ -742,17 +742,17 @@
 
   /** Read form inputs into config, detect preset, and save. */
   function configFromForm() {
-    config.workMin = clamp(parseInt(elCfgWork.value, 10) || 25, 1, 120);
-    config.breakMin = clamp(parseInt(elCfgBreak.value, 10) || 5, 1, 60);
+    config.workMin = Math.max(1, parseInt(elCfgWork.value, 10) || 25);
+    config.breakMin = Math.max(1, parseInt(elCfgBreak.value, 10) || 5);
 
     var rows = elBlocksList.querySelectorAll('.block-row');
     config.blocks = [];
     for (var i = 0; i < rows.length; i++) {
       var cyclesInput = rows[i].querySelector('.block-cycles');
       var majorInput = rows[i].querySelector('.block-major');
-      var cycles = clamp(parseInt(cyclesInput.value, 10) || 1, 1, 20);
+      var cycles = Math.max(1, parseInt(cyclesInput.value, 10) || 1);
       var isLast = i === rows.length - 1;
-      var major = isLast ? 0 : clamp(parseInt(majorInput.value, 10) || 0, 0, 180);
+      var major = isLast ? 0 : Math.max(0, parseInt(majorInput.value, 10) || 0);
       config.blocks.push({ cycles: cycles, majorBreak: major });
     }
 
@@ -1628,7 +1628,7 @@
       cyclesInput.type = 'number';
       cyclesInput.className = 'block-cycles';
       cyclesInput.min = '1';
-      cyclesInput.max = '20';
+      cyclesInput.removeAttribute('max');
       cyclesInput.value = block.cycles;
 
       var cyclesLabel = document.createElement('span');
@@ -1647,7 +1647,7 @@
         majorInput.type = 'number';
         majorInput.className = 'block-major';
         majorInput.min = '0';
-        majorInput.max = '180';
+        majorInput.removeAttribute('max');
         majorInput.value = block.majorBreak;
 
         var majorLabel = document.createElement('span');
